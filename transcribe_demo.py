@@ -26,10 +26,12 @@ def main():
     parser.add_argument("--phrase_timeout", default=3,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
-    if 'linux' in platform:
-        parser.add_argument("--default_microphone", default='pulse',
-                            help="Default microphone name for SpeechRecognition. "
-                                 "Run this with 'list' to view available Microphones.", type=str)
+    parser.add_argument("--default_microphone", default='pulse',
+                        help="Default microphone name for SpeechRecognition. "
+                                "Run this with 'list' to view available Microphones.", type=str)
+    parser.add_argument("--output", default='output.txt',
+                        help="Write the output to a file. ", type=str)
+    
     args = parser.parse_args()
 
     # The last time a recording was retrieved from the queue.
@@ -44,7 +46,7 @@ def main():
 
     # Important for linux users.
     # Prevents permanent application hang and crash by using the wrong Microphone
-    if 'linux' in platform:
+    if 'linux' not in platform:
         mic_name = args.default_microphone
         if not mic_name or mic_name == 'list':
             print("Available microphone devices are: ")
@@ -128,6 +130,8 @@ def main():
                     print(line)
                 # Flush stdout.
                 print('', end='', flush=True)
+                with open(args.output, 'a') as f:
+                    f.write(text)
             else:
                 # Infinite loops are bad for processors, must sleep.
                 sleep(0.25)
